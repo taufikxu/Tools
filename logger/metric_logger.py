@@ -21,6 +21,11 @@ class Logger(object):
         self.stats[category][k].append((it, v))
         self.tb_writter.add_scalar("{}/{}".format(category, k), v, it)
 
+    def addvs(self, category, keyvalue, it):
+        for k in keyvalue:
+            v = keyvalue[k]
+            self.add(category, k, v, it)
+
     def add_imgs(self, imgs, name=None, class_name=None, vrange=None, nrow=10):
         if class_name is None:
             outdir = self.log_dir
@@ -41,7 +46,9 @@ class Logger(object):
             maxv, minv = max(vrange), min(vrange)
         imgs = (imgs - minv) / (maxv - minv + 1e-8)
         torchvision.utils.save_image(imgs, outfile, nrow=nrow)
-        self.tb_writter.add_image(class_name, imgs, dataformats="CHW")
+
+        # imgs = torchvision.utils.make_grid(imgs, nrow=nrow)
+        # self.tb_writter.add_image(class_name, imgs, dataformats="CHW")
 
     def log_info(self, prefix, log_func, cats=None):
         if cats is None:
@@ -54,7 +61,7 @@ class Logger(object):
             prefix += "\n"
         log_func(prefix)
 
-    def save_stats(self, filename="stat.pkl"):
+    def save(self, filename="stat.pkl"):
         filename = os.path.join(self.log_dir, filename)
         with open(filename, "wb") as f:
             pickle.dump(self.stats, f)

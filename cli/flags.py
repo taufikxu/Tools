@@ -22,7 +22,8 @@ def dict2Namespace(dic, root=False):
 
 def namespace2Dict(namespace):
     new_dict = dict({})
-    namespace = vars(namespace)
+    if isinstance(namespace, _argparse.Namespace):
+        namespace = vars(namespace)
     for k in namespace:
         v = namespace[k]
         if isinstance(v, _argparse.Namespace) is True:

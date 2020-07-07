@@ -5,6 +5,7 @@ import pickle
 import shutil
 import socket
 import time
+import glob
 
 import coloredlogs
 
@@ -74,11 +75,9 @@ def build_logger(folder=None, logger_name=None):
     return logger
 
 
-def save_context(filename, keys, files=None):
-    FILES_TO_BE_SAVED = ["./", "./configs", "./library"]
-    if files is not None:
-        assert isinstance(files, list)
-        FILES_TO_BE_SAVED += files
+def save_context(filename, keys):
+    filename = os.path.splitext(filename)[0]
+    FILES_TO_BE_SAVED = ["./configs", "./library"]
     KEY_ARGUMENTS = keys
 
     if FLAGS.gpu.lower() not in ["-1", "none", notValid.lower()]:
@@ -121,19 +120,13 @@ def save_context(filename, keys, files=None):
     os.makedirs(SUMMARIES_FOLDER)
     os.makedirs(SOURCE_FOLDER)
     logger = build_logger(FLAGS.results_folder)
-    extensions = [".py", ".yml", ".yaml"]
-    for folder in FILES_TO_BE_SAVED:
-        destination = SOURCE_FOLDER
-        if folder != "./":
-            destination += folder
-            os.makedirs(destination)
-        all_py_yaml_files = []
-        for f in os.listdir(folder):
-            for e in extensions:
-                if f.endswith(e):
-                    all_py_yaml_files.append(f)
-        for file in all_py_yaml_files:
-            shutil.copy(os.path.join(folder, file), os.path.join(destination, file))
+
+    destination = SOURCE_FOLDER
+    for f in glob.glob("./*.py"):
+        shutil.copy(f, os.path.join(destination, f))
+    for f in FILES_TO_BE_SAVED:
+        shutil.copytree(f, os.path.join(destination, f))
+
     configs_dict = FLAGS.get_dict()
     with open(os.path.join(SOURCE_FOLDER, "configs_dict.pkl"), "wb") as f:
         pickle.dump(configs_dict, f)

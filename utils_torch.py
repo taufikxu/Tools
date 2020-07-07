@@ -2,29 +2,19 @@ import torch
 from torch import distributions
 
 
-class infinity_loader(object):
-    def __init__(self, loader):
-        super().__init__()
-        self.loader = loader
-
-    def next(self):
-        return self.__next__()
-
-    def __next__(self):
-        try:
-            output = self.loader.__next__()
-        except StopIteration:
-            output = self.loader.__next__()
-        return output
+def infinity_loader(loader):
+    while True:
+        for output in loader:
+            yield output
 
 
 def get_zdist(dist_name, dim, device=None):
     # Get distribution
-    if dist_name == "uniform":
+    if dist_name.lower() == "uniform":
         low = -torch.ones(dim, device=device)
         high = torch.ones(dim, device=device)
         zdist = distributions.Uniform(low, high)
-    elif dist_name == "gauss":
+    elif dist_name.lower() in ["gauss", "gaussian"]:
         mu = torch.zeros(dim, device=device)
         scale = torch.ones(dim, device=device)
         zdist = distributions.Normal(mu, scale)
