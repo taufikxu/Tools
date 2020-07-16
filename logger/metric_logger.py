@@ -3,6 +3,10 @@ import torch
 import torchvision
 import pickle
 from torch.utils.tensorboard import SummaryWriter
+import matplotlib
+from matplotlib import pyplot as plt
+
+matplotlib.use("agg")
 
 
 class Logger(object):
@@ -12,6 +16,21 @@ class Logger(object):
         self.tb_writter = SummaryWriter(log_dir)
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
+
+    def __getfilename(self, name, class_name=None):
+        if class_name is None:
+            outdir = self.log_dir
+            class_name = "ImageVisualization"
+        else:
+            outdir = os.path.join(self.log_dir, class_name)
+
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+        if isinstance(name, str):
+            outfile = os.path.join(outdir, "{}.png".format(name))
+        else:
+            outfile = os.path.join(outdir, "%08d.png" % name)
+        return outfile
 
     def add(self, category, k, v, it):
         if category not in self.stats:
@@ -26,29 +45,22 @@ class Logger(object):
             v = keyvalue[k]
             self.add(category, k, v, it)
 
-    def add_imgs(self, imgs, name=None, class_name=None, vrange=None, nrow=10):
-        if class_name is None:
-            outdir = self.log_dir
-            class_name = "ImageVisualization"
-        else:
-            outdir = os.path.join(self.log_dir, class_name)
-
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-        if isinstance(name, str):
-            outfile = os.path.join(outdir, "{}.png".format(name))
-        else:
-            outfile = os.path.join(outdir, "%08d.png" % name)
-
+    def add_imgs(self, imgs, name, class_name=None, vrange=None, nrow=10):
+        outfile = self.__getfilename(name, class_name)
         if vrange is None:
             maxv, minv = float(torch.max(imgs)), float(torch.min(imgs))
         else:
             maxv, minv = max(vrange), min(vrange)
         imgs = (imgs - minv) / (maxv - minv + 1e-8)
         torchvision.utils.save_image(imgs, outfile, nrow=nrow)
-
         # imgs = torchvision.utils.make_grid(imgs, nrow=nrow)
         # self.tb_writter.add_image(class_name, imgs, dataformats="CHW")
+
+    def add_hist(self, vectors, name=None, **kwargs):
+        outfile = self.__getfilename(name)
+        figure = plt.figure()
+        plt.hist(vectors)
+        plt.savefig(outfile)
 
     def log_info(self, prefix, log_func, cats=None):
         if cats is None:
