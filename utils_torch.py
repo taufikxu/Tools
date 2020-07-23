@@ -47,3 +47,8 @@ def update_average(model_tgt, model_src, beta=0.999):
         p_src = param_dict_src[p_name]
         assert p_src is not p_tgt
         p_tgt.data.mul_(beta).add_((1 - beta) * p_src.data)
+
+
+def init_weights(m):
+    torch.nn.init.xavier_uniform(m.weight)
+    m.bias.data.fill_(0.01)

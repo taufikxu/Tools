@@ -21,7 +21,7 @@ class CheckpointIO(object):
             outdict[k] = v.state_dict()
         torch.save(outdict, filename)
 
-    def load_file(self, filename, relative=False):
+    def load_file(self, filename, relative=True):
         if not os.path.isabs(filename) and relative is False:
             filename = os.path.join(self.checkpoint_dir, filename)
 
@@ -31,3 +31,20 @@ class CheckpointIO(object):
             return scalars
         else:
             raise FileNotFoundError
+
+    def parse_state_dict(self, state_dict):
+        """Parse state_dict of model and return scalars.
+        Args:
+            state_dict (dict): State dict of model
+        """
+
+        for k, v in self.module_dict.items():
+            if k in state_dict:
+                # new_state = dict({})
+                # for tk in state_dict[k]:
+                #     new_state[tk[11:]] = state_dict[k][tk]
+                v.load_state_dict(new_state)
+            else:
+                print("Warning: Could not find %s in checkpoint!" % k)
+        scalars = {k: v for k, v in state_dict.items() if k not in self.module_dict}
+        return scalars
