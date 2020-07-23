@@ -87,12 +87,15 @@ def save_context(filename, keys):
 
     default_key = ""
     for item in KEY_ARGUMENTS:
-        default_key += (
-            "(" + item + "_" + str(configs_dict[item]).replace("/", "_") + ")"
-        )
+        if item == "old_model":
+            default_key += "(" + item + "_" + "Loaded" + ")"
+        else:
+            default_key += (
+                "(" + item + "_" + str(configs_dict[item]).replace("/", "_") + ")"
+            )
 
     if FLAGS.results_folder == notValid:
-        FLAGS.results_folder = "./aresults/"
+        FLAGS.results_folder = "./Aresults/"
     if FLAGS.subfolder != notValid:
         FLAGS.results_folder = os.path.join(FLAGS.results_folder, FLAGS.subfolder)
     FLAGS.results_folder = os.path.join(
