@@ -24,24 +24,24 @@ def get_logger(logger_name=None):
     return logger
 
 
-def build_logger(folder=None, logger_name=None):
+def build_logger(file_names=None, logger_name=None):
     FORMAT = "%(asctime)s;%(levelname)s|%(message)s"
     DATEF = "%H-%M-%S"
     logging.basicConfig(format=FORMAT)
     logger = get_logger(logger_name)
 
-    if folder is not None:
-        fh = logging.FileHandler(
-            filename=os.path.join(
-                folder, "logfile{}.log".format(time.strftime("%m-%d"))
+    if isinstance(file_names, str):
+        file_names = [file_names]
+
+    if file_names is not None:
+        for filename in file_names:
+            fh = logging.FileHandler(filename=filename)
+            fh.setLevel(logging.INFO)
+            formatter = logging.Formatter(
+                "%(asctime)s;%(levelname)s|%(message)s", "%H:%M:%S"
             )
-        )
-        fh.setLevel(logging.INFO)
-        formatter = logging.Formatter(
-            "%(asctime)s;%(levelname)s|%(message)s", "%H:%M:%S"
-        )
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
 
     LEVEL_STYLES = dict(
         debug=dict(color="magenta"),
@@ -77,6 +77,9 @@ def build_logger(folder=None, logger_name=None):
 
 def save_context(filename, keys):
     filename = os.path.splitext(filename)[0]
+    project = os.path.basename(os.getcwd())
+    experiment_name = ""
+    logfiles = []
     FILES_TO_BE_SAVED = ["./configs", "./library"]
     KEY_ARGUMENTS = keys
 
@@ -87,27 +90,29 @@ def save_context(filename, keys):
 
     default_key = ""
     for item in KEY_ARGUMENTS:
-        if item == "old_model":
-            default_key += "(" + item + "_" + "Loaded" + ")"
-        else:
-            default_key += (
-                "(" + item + "_" + str(configs_dict[item]).replace("/", "_") + ")"
-            )
+        default_key += (
+            "(" + item + "_" + str(configs_dict[item]).replace("/", "_")[:20] + ")"
+        )
 
     if FLAGS.results_folder == notValid:
         FLAGS.results_folder = "./Aresults/"
     if FLAGS.subfolder != notValid:
         FLAGS.results_folder = os.path.join(FLAGS.results_folder, FLAGS.subfolder)
-    FLAGS.results_folder = os.path.join(
-        FLAGS.results_folder,
-        "({file})_({data})_({time})_({default_key})_({user_key})".format(
-            file=filename.replace("/", "_"),
-            data=FLAGS.dataset,
-            time=time.strftime("%Y-%m-%d-%H-%M-%S"),
-            default_key=default_key,
-            user_key=FLAGS.key,
-        ),
+
+    experiment_name = "({file})_({data})_({time})_({default_key})_({user_key})".format(
+        file=filename.replace("/", "_"),
+        data=FLAGS.dataset,
+        time=time.strftime("%Y-%m-%d-%H-%M-%S"),
+        default_key=default_key,
+        user_key=FLAGS.key,
     )
+    FLAGS.results_folder = os.path.join(FLAGS.results_folder, experiment_name)
+    logfiles.append(os.path.join(FLAGS.results_folder, "Log.txt"))
+
+    if os.path.isabs(FLAGS.results_folder):
+        experiment_name = "({})".format(project) + experiment_name
+        FLAGS.results_folder = "({})".format(project) + FLAGS.results_folder
+        logfiles.append("./Aresults/{}_log.txt".format(experiment_name))
 
     if os.path.exists(FLAGS.results_folder):
         raise FileExistsError(
@@ -123,7 +128,7 @@ def save_context(filename, keys):
     os.makedirs(MODELS_FOLDER)
     os.makedirs(SUMMARIES_FOLDER)
     os.makedirs(SOURCE_FOLDER)
-    logger = build_logger(FLAGS.results_folder)
+    logger = build_logger(logfiles)
 
     destination = SOURCE_FOLDER
     for f in glob.glob("./*.py"):

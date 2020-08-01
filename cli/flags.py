@@ -63,7 +63,7 @@ class _FlagValues(object):
     def set_dict(self, newdict, overwrite=False):
         if not self.__dict__["__parsed"]:
             self._parse_flags()
-
+        ignore = ["gpu", "results_folder", "subfolder"]
         for k in newdict:
             self.__dict__["__flags"][k] = newdict[k]
 
@@ -72,6 +72,14 @@ class _FlagValues(object):
             return
         self.__dict__["__flags"] = dict2Namespace(self.__dict__["__flags"], root=True)
         self.__dict__["__namespace"] = True
+
+    def __hasattr__(self, name):
+        if not self.__dict__["__parsed"]:
+            self._parse_flags()
+        if name not in self.__dict__["__flags"]:
+            return False
+        else:
+            return True
 
     def __getattr__(self, name):
         """Retrieves the 'value' attribute of the flag --name."""

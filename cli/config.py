@@ -54,6 +54,22 @@ def load_config(config_path):
             print("Ignore {}".format(k))
         else:
             FLAGS.__setattr__(k, cfg_special[k])
+
+    all_keys = FLAGS.get_dict()
+    tobedone = dict({})
+    for k in all_keys:
+        if k.startswith("include"):
+            print(k, k.startswith("include"))
+            config_path = all_keys[k]
+            with open(config_path, "r") as f:
+                cfg_special = yaml.load(f, Loader=yaml.FullLoader)
+                cfg_special = flatten_dicts(cfg_special)
+            print(config_path, cfg_special)
+            for tk in cfg_special:
+                if FLAGS.__hasattr__(tk) is False or getattr(FLAGS, tk) == notValid:
+                    tobedone[tk] = cfg_special[tk]
+    for k in tobedone:
+        FLAGS.__setattr__(k, tobedone[k])
     FLAGS.toNameSpace()
     return input_arguments
 
