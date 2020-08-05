@@ -63,8 +63,10 @@ class _FlagValues(object):
     def set_dict(self, newdict, overwrite=False):
         if not self.__dict__["__parsed"]:
             self._parse_flags()
-        ignore = ["gpu", "results_folder", "subfolder"]
+        ignore = ["gpu", "results_folder", "subfolder", "old_model"]
         for k in newdict:
+            if k in ignore:
+                continue
             self.__dict__["__flags"][k] = newdict[k]
 
     def toNameSpace(self):

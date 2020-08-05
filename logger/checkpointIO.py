@@ -21,10 +21,8 @@ class CheckpointIO(object):
             outdict[k] = v.state_dict()
         torch.save(outdict, filename)
 
-    def load_file(self, filename, relative=True):
-        if not os.path.isabs(filename) and relative is False:
-            filename = os.path.join(self.checkpoint_dir, filename)
-
+    def load_file(self, filename):
+        print("Loading! {}".format(filename))
         if os.path.exists(filename):
             state_dict = torch.load(filename)
             scalars = self.parse_state_dict(state_dict)

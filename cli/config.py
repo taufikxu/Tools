@@ -13,6 +13,7 @@ default_arguments = {
     "dataset": notValid,
     "results_folder": notValid,
     "subfolder": notValid,
+    "old_model": notValid,
 }
 
 
