@@ -30,16 +30,38 @@ def flatten_dicts(tdict):
     return new_dict
 
 
+def parse_dict_cfg(cfg):
+    shared_dict = dict({})
+    for k in cfg:
+        if k.startswith("include"):
+            config_path = cfg[k]
+            with open(config_path, "r") as f:
+                cfg_special = yaml.load(f, Loader=yaml.FullLoader)
+                cfg_special = flatten_dicts(cfg_special)
+            print("config_file", config_path, cfg_special)
+            for tk in cfg_special:
+                assert tk not in default_arguments
+                assert tk not in shared_dict
+                shared_dict[tk] = cfg_special[tk]
+
+    for k in shared_dict:
+        if k not in cfg:
+            cfg[k] = shared_dict[k]
+        else:
+            print("ignore include files", k, "use cfg value", cfg[k])
+    return cfg
+
+
 def load_config(config_path):
     """ Loads config file.
     Args:
         config_path (str): path to config file
-        default_path (bool): whether to use default path
     """
     # Load configuration from file itself
     with open(config_path, "r") as f:
         cfg_special = yaml.load(f, Loader=yaml.FullLoader)
         cfg_special = flatten_dicts(cfg_special)
+        cfg_special = parse_dict_cfg(cfg_special)
 
     ignore_arguments = default_arguments.keys()
     input_arguments = []
@@ -50,27 +72,14 @@ def load_config(config_path):
             continue
         input_arguments.append(k)
         print("Note!: input args: {} with value {}".format(k, FLAGS.__getattr__(k)))
+
+    all_keys = parse_dict_cfg(all_keys)
     for k in cfg_special:
         if k in all_keys and all_keys[k] != notValid:
             print("Ignore {}".format(k))
         else:
             FLAGS.__setattr__(k, cfg_special[k])
 
-    all_keys = FLAGS.get_dict()
-    tobedone = dict({})
-    for k in all_keys:
-        if k.startswith("include"):
-            print(k, k.startswith("include"))
-            config_path = all_keys[k]
-            with open(config_path, "r") as f:
-                cfg_special = yaml.load(f, Loader=yaml.FullLoader)
-                cfg_special = flatten_dicts(cfg_special)
-            print(config_path, cfg_special)
-            for tk in cfg_special:
-                if FLAGS.__hasattr__(tk) is False or getattr(FLAGS, tk) == notValid:
-                    tobedone[tk] = cfg_special[tk]
-    for k in tobedone:
-        FLAGS.__setattr__(k, tobedone[k])
     FLAGS.toNameSpace()
     return input_arguments
 
@@ -87,6 +96,8 @@ def init_cli():
             )
 
     others_yml = glob.glob("./configs/*.yml") + glob.glob("./configs/*.yaml")
+    others_yml_inc = glob.glob("./configs/*/*.yml") + glob.glob("./configs/*/*.yaml")
+    others_yml += others_yml_inc
     for yml in others_yml:
         with open(yml, "r") as f:
             newdict = yaml.load(f, Loader=yaml.FullLoader)

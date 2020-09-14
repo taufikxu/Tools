@@ -6,6 +6,8 @@ from torch.utils.tensorboard import SummaryWriter
 import matplotlib
 from matplotlib import pyplot as plt
 
+from Tools import FLAGS
+
 matplotlib.use("agg")
 
 
@@ -36,22 +38,20 @@ class Logger(object):
         if it % self.save_interval == 0:
             self.save()
 
+    def __getfilename(self, name, class_name=None):
+        if class_name is None:
+            class_name = "ImageVisualization"
+        outdir = os.path.join(self.log_dir, class_name)
+
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+        if isinstance(name, str):
+            outfile = os.path.join(outdir, "{}.png".format(name))
+        else:
+            outfile = os.path.join(outdir, "%08d.png" % name)
+        return outfile
+
     def add_imgs(self, imgs, name, class_name=None, vrange=None, nrow=10):
-        def __getfilename(self, name, class_name=None):
-            if class_name is None:
-                outdir = self.log_dir
-                class_name = "ImageVisualization"
-            else:
-                outdir = os.path.join(self.log_dir, class_name)
-
-            if not os.path.exists(outdir):
-                os.makedirs(outdir)
-            if isinstance(name, str):
-                outfile = os.path.join(outdir, "{}.png".format(name))
-            else:
-                outfile = os.path.join(outdir, "%08d.png" % name)
-            return outfile
-
         outfile = self.__getfilename(name, class_name)
         if vrange is None:
             maxv, minv = float(torch.max(imgs)), float(torch.min(imgs))
@@ -68,9 +68,14 @@ class Logger(object):
         plt.hist(vectors)
         plt.savefig(outfile)
 
-    def log_info(self, prefix, log_func, cats=None):
+    def log_info(self, it, log_func, cats=None):
         if cats is None:
             cats = self.stats.keys()
+
+        total = FLAGS.training.n_iter
+        percent = (it / total) * 100
+        prefix = "Itera {}/{} ({:.02f}%)".format(it, total, percent)
+
         prefix += "\n"
         for cat in cats:
             prefix += "|{}: ".format(cat)

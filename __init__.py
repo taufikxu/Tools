@@ -1,3 +1,7 @@
+import warnings
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+
 # from . import cli
 from .cli.flags import FLAGS
 from .cli.config import init_cli, load_config
@@ -6,6 +10,7 @@ from .logger.checkpointIO import CheckpointIO
 from .logger.metric_logger import Logger
 
 from . import evaluation
+
 
 init_cli()
 
