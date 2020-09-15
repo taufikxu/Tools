@@ -1,5 +1,4 @@
 import glob
-
 import yaml
 
 from Tools.cli import flags
@@ -9,6 +8,7 @@ notValid = "NotApply"
 default_arguments = {
     "config_file": notValid,
     "gpu": notValid,
+    "gpu_number": -1,
     "key": notValid,
     "dataset": notValid,
     "results_folder": notValid,
@@ -68,7 +68,7 @@ def load_config(config_path):
     all_keys = FLAGS.get_dict()
     # Include main configuration
     for k in all_keys:
-        if k in ignore_arguments or all_keys[k] == notValid:
+        if k in ignore_arguments:
             continue
         input_arguments.append(k)
         print("Note!: input args: {} with value {}".format(k, FLAGS.__getattr__(k)))
@@ -92,7 +92,7 @@ def init_cli():
     for k in default_arguments:
         if k != "config_file":
             flags.DEFINE_argument(
-                "-" + k, "--" + k, type=str, default=default_arguments[k]
+                "-" + k, "--" + k, type=type(k), default=default_arguments[k]
             )
 
     others_yml = glob.glob("./configs/*.yml") + glob.glob("./configs/*.yaml")
