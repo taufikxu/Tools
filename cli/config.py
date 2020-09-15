@@ -8,7 +8,7 @@ notValid = "NotApply"
 default_arguments = {
     "config_file": notValid,
     "gpu": notValid,
-    "gpu_number": -1,
+    "gpu_number": notValid,
     "key": notValid,
     "dataset": notValid,
     "results_folder": notValid,

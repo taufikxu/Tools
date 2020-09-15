@@ -17,14 +17,17 @@ FLAGS = flags.FLAGS
 
 
 def get_free_gpu():
-    query = gpustat.new_query()
-    num_gpus = len(query)
-    vailable_gpus = []
-    for i in range(num_gpus):
-        if len(query[i].processes) == 0:
-            vailable_gpus.append(str(i))
-    vailable_gpus = vailable_gpus[: FLAGS.gpu_number]
-    return ",".join(vailable_gpus)
+    try:
+        query = gpustat.new_query()
+        num_gpus = len(query)
+        vailable_gpus = []
+        for i in range(num_gpus):
+            if len(query[i].processes) == 0:
+                vailable_gpus.append(str(i))
+        vailable_gpus = vailable_gpus[: FLAGS.gpu_number]
+        return ",".join(vailable_gpus)
+    except OSError:
+        return ""
 
 
 def get_logger(logger_name=None):
@@ -99,7 +102,7 @@ def save_context(filename, keys):
     if FLAGS.gpu.lower() not in ["-1", "none", notValid.lower()]:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(FLAGS.gpu)
     elif FLAGS.gpu_number > 0:
-        os.environ["CUDA_VISIBLE_DEVICES"] = get_free_gpu()
+        FLAGS.gpu = os.environ["CUDA_VISIBLE_DEVICES"] = get_free_gpu()
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
     configs_dict = FLAGS.get_dict()
 
