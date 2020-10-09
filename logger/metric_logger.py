@@ -68,13 +68,9 @@ class Logger(object):
         plt.hist(vectors)
         plt.savefig(outfile)
 
-    def log_info(self, it, log_func, cats=None):
+    def log_info(self, prefix, log_func, cats=None):
         if cats is None:
             cats = self.stats.keys()
-
-        total = FLAGS.training.n_iter
-        percent = (it / total) * 100
-        prefix = "Itera {}/{} ({:.02f}%)".format(it, total, percent)
 
         prefix += "\n"
         for cat in cats:
