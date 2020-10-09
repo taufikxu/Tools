@@ -52,3 +52,10 @@ def update_average(model_tgt, model_src, beta=0.999):
 def init_weights(m):
     torch.nn.init.xavier_uniform(m.weight)
     m.bias.data.fill_(0.01)
+
+
+def top_k_acc(logits, y, k=1):
+    y_resize = y.view(-1, 1)
+    _, pred = logits.topk(k, 1, True, True)
+    correct = torch.eq(pred, y_resize).sum().float()
+    return correct / logits.shape[0]
