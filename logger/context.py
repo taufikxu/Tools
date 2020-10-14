@@ -101,7 +101,8 @@ def save_context(filename, keys):
 
     if FLAGS.gpu.lower() not in ["-1", "none", notValid.lower()]:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(FLAGS.gpu)
-    elif FLAGS.gpu_number > 0:
+    elif FLAGS.gpu_number != notValid and int(FLAGS.gpu_number) > 0:
+        FLAGS.gpu_number = int(FLAGS.gpu_number)
         FLAGS.gpu = os.environ["CUDA_VISIBLE_DEVICES"] = get_free_gpu()
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
     configs_dict = FLAGS.get_dict()
