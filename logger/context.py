@@ -109,7 +109,7 @@ def save_context(filename, keys):
 
     default_key = ""
     for item in KEY_ARGUMENTS:
-        if "/" in configs_dict[item]:
+        if isinstance(configs_dict[item], str) and "/" in configs_dict[item]:
             v = "path"
         else:
             v = configs_dict[item]
