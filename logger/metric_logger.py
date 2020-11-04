@@ -68,6 +68,23 @@ class Logger(object):
         plt.hist(vectors)
         plt.savefig(outfile)
 
+    def add_scatter(self, vectors, name=None, **kwargs):
+        outfile = self.__getfilename(name)
+        figure = plt.figure()
+        plt.scatter(vectors[:, 0], vectors[:, 1], **kwargs)
+        plt.savefig(outfile)
+
+    def add_scatter_condition(self, vectors_dict, name=None, **kwargs):
+        outfile = self.__getfilename(name)
+        figure = plt.figure()
+        legend_names = []
+        for k in vectors_dict:
+            legend_names.append(k)
+            vectors = vectors_dict[k]
+            plt.scatter(vectors[:, 0], vectors[:, 1])
+        plt.legend(legend_names)
+        plt.savefig(outfile)
+
     def log_info(self, prefix, log_func, cats=None):
         if cats is None:
             cats = self.stats.keys()
