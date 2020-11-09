@@ -59,3 +59,11 @@ def top_k_acc(logits, y, k=1):
     _, pred = logits.topk(k, 1, True, True)
     correct = torch.eq(pred, y_resize).sum().float()
     return correct / logits.shape[0]
+
+
+class Identity(torch.nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def forward(self, x):
+        return x

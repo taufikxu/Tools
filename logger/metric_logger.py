@@ -68,13 +68,16 @@ class Logger(object):
         plt.hist(vectors)
         plt.savefig(outfile)
 
-    def add_scatter(self, vectors, name=None, **kwargs):
+    def add_scatter(self, vectors, name=None, xyrange=None, **kwargs):
         outfile = self.__getfilename(name)
         figure = plt.figure()
         plt.scatter(vectors[:, 0], vectors[:, 1], **kwargs)
+        if xyrange is not None:
+            plt.xlim(-xyrange, xyrange)
+            plt.ylim(-xyrange, xyrange)
         plt.savefig(outfile)
 
-    def add_scatter_condition(self, vectors_dict, name=None, **kwargs):
+    def add_scatter_condition(self, vectors_dict, name=None, xyrange=None, **kwargs):
         outfile = self.__getfilename(name)
         figure = plt.figure()
         legend_names = []
@@ -82,6 +85,9 @@ class Logger(object):
             legend_names.append(k)
             vectors = vectors_dict[k]
             plt.scatter(vectors[:, 0], vectors[:, 1])
+        if xyrange is not None:
+            plt.xlim(-xyrange, xyrange)
+            plt.ylim(-xyrange, xyrange)
         plt.legend(legend_names)
         plt.savefig(outfile)
 
