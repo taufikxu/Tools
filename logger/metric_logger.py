@@ -5,6 +5,7 @@ import pickle
 from torch.utils.tensorboard import SummaryWriter
 import matplotlib
 from matplotlib import pyplot as plt
+import numpy as np
 
 from Tools import FLAGS
 
@@ -67,6 +68,43 @@ class Logger(object):
         figure = plt.figure()
         plt.hist(vectors)
         plt.savefig(outfile)
+        plt.close()
+
+    def add_contour(self, xrange, yrange, func, name, step=100, levels=10):
+        outfile = self.__getfilename(name)
+
+        x = np.linspace(-xrange, xrange, step)
+        y = np.linspace(-yrange, yrange, step)
+        X, Y = np.meshgrid(x, y)
+        inp = np.concatenate([X.reshape(-1, 1), Y.reshape(-1, 1)], 1)
+        value = func(inp).reshape(step, step)
+        maxv, minv = np.max(value), np.min(value)
+        levels = np.linspace(minv, maxv, levels)
+        contour = plt.contour(X, Y, value, levels)
+        plt.clabel(contour, fontsize=10)
+        plt.savefig(outfile)
+        plt.close()
+
+    def add_heatmap(self, xrange, yrange, func, name, step=100):
+
+        outfile = self.__getfilename(name)
+
+        x = np.linspace(-xrange, xrange, step)
+        y = np.linspace(-yrange, yrange, step)
+        X, Y = np.meshgrid(x, y)
+        inp = np.concatenate([X.reshape(-1, 1), Y.reshape(-1, 1)], 1)
+        value = func(inp).reshape(step, step)
+        maxv, minv = np.max(value), np.min(value)
+
+        fig, ax = plt.subplots()
+        z_min, z_max = np.min(value), np.max(value)
+        c = ax.pcolormesh(
+            X, Y, value, cmap="RdBu", vmin=z_min, vmax=z_max, shading="auto"
+        )
+        ax.axis([X.min(), X.max(), Y.min(), Y.max()])
+        fig.colorbar(c, ax=ax)
+        plt.savefig(outfile)
+        plt.close()
 
     def add_scatter(self, vectors, name=None, xyrange=None, **kwargs):
         outfile = self.__getfilename(name)
@@ -76,6 +114,7 @@ class Logger(object):
             plt.xlim(-xyrange, xyrange)
             plt.ylim(-xyrange, xyrange)
         plt.savefig(outfile)
+        plt.close()
 
     def add_scatter_condition(self, vectors_dict, name=None, xyrange=None, **kwargs):
         outfile = self.__getfilename(name)
@@ -90,6 +129,7 @@ class Logger(object):
             plt.ylim(-xyrange, xyrange)
         plt.legend(legend_names)
         plt.savefig(outfile)
+        plt.close()
 
     def log_info(self, prefix, log_func, cats=None):
         if cats is None:
