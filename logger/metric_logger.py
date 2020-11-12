@@ -39,7 +39,7 @@ class Logger(object):
         if it % self.save_interval == 0:
             self.save()
 
-    def __getfilename(self, name, class_name=None):
+    def __getfilename(self, name, class_name=None, ext="png"):
         if class_name is None:
             class_name = "ImageVisualization"
         outdir = os.path.join(self.log_dir, class_name)
@@ -47,9 +47,9 @@ class Logger(object):
         if not os.path.exists(outdir):
             os.makedirs(outdir)
         if isinstance(name, str):
-            outfile = os.path.join(outdir, "{}.png".format(name))
+            outfile = os.path.join(outdir, "{}.{}".format(name, ext))
         else:
-            outfile = os.path.join(outdir, "%08d.png" % name)
+            outfile = os.path.join(outdir, "%08d.{}".format(name, ext))
         return outfile
 
     def add_imgs(self, imgs, name, class_name=None, vrange=None, nrow=10):
@@ -105,6 +105,10 @@ class Logger(object):
         fig.colorbar(c, ax=ax)
         plt.savefig(outfile)
         plt.close()
+
+    def add_gif(self, img_list, name=None, **kwargs):
+        outfile = self.__getfilename(name, ext="gif")
+        img_list[0].save(outfile, save_all=True, append_images=img_list)
 
     def add_scatter(self, vectors, name=None, xyrange=None, **kwargs):
         outfile = self.__getfilename(name)
