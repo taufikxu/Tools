@@ -61,6 +61,21 @@ def top_k_acc(logits, y, k=1):
     return correct / logits.shape[0]
 
 
+def gradient_norm(parameters, norm_type=2):
+    if isinstance(parameters, torch.Tensor):
+        parameters = [parameters]
+    parameters = [p for p in parameters if p.grad is not None]
+    norm_type = float(norm_type)
+    if len(parameters) == 0:
+        return torch.tensor(-1.0)
+    device = parameters[0].grad.device
+    if norm_type == "inf":
+        total_norm = max(p.grad.detach().abs().max().to(device) for p in parameters)
+    else:
+        total_norm = torch.norm(torch.stack([torch.norm(p.grad.detach(), norm_type).to(device) for p in parameters]), norm_type)
+    return total_norm
+
+
 class Identity(torch.nn.Module):
     def __init__(self, *args, **kwargs):
         super().__init__()
