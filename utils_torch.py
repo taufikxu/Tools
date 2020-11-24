@@ -1,11 +1,25 @@
 import torch
 from torch import distributions
+from collections import defaultdict
 
 
 def infinity_loader(loader):
     while True:
         for output in loader:
             yield output
+
+
+def get_loader_data(loader, num_samples=1000):
+    return_dict = defaultdict(list)
+    for items in loader:
+        for ind, x in enumerate(items):
+            return_dict[ind].append(x)
+        if len(return_dict[0]) * return_dict[0][0].shape[0] > num_samples:
+            break
+    results = []
+    for ind in range(len(return_dict)):
+        results.append(torch.cat(return_dict[ind], dim=0))
+    return results
 
 
 def get_zdist(dist_name, dim, device=None):

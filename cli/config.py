@@ -7,6 +7,8 @@ FLAGS = flags.FLAGS
 notValid = "NotApply"
 default_arguments = {
     "config_file": notValid,
+    "method": notValid,
+    "seed_bias": 0,
     "gpu": notValid,
     "gpu_number": notValid,
     "key": notValid,
@@ -91,9 +93,7 @@ def init_cli():
     )
     for k in default_arguments:
         if k != "config_file":
-            flags.DEFINE_argument(
-                "-" + k, "--" + k, type=type(k), default=default_arguments[k]
-            )
+            flags.DEFINE_argument("-" + k, "--" + k, type=type(k), default=default_arguments[k])
 
     others_yml = glob.glob("./configs/*.yml") + glob.glob("./configs/*.yaml")
     others_yml_inc = glob.glob("./configs/*/*.yml") + glob.glob("./configs/*/*.yaml")

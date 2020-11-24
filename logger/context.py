@@ -52,9 +52,7 @@ def build_logger(file_names=None, logger_name=None):
         for filename in file_names:
             fh = logging.FileHandler(filename=filename)
             fh.setLevel(logging.INFO)
-            formatter = logging.Formatter(
-                "%(asctime)s;%(levelname)s|%(message)s", "%H:%M:%S"
-            )
+            formatter = logging.Formatter("%(asctime)s;%(levelname)s|%(message)s", "%H:%M:%S")
             fh.setFormatter(formatter)
             logger.addHandler(fh)
 
@@ -66,9 +64,7 @@ def build_logger(file_names=None, logger_name=None):
         error=dict(color="yellow"),
         critical=dict(color="red", bold=True),
     )
-    coloredlogs.install(
-        level=logging.INFO, fmt=FORMAT, datefmt=DATEF, level_styles=LEVEL_STYLES
-    )
+    coloredlogs.install(level=logging.INFO, fmt=FORMAT, datefmt=DATEF, level_styles=LEVEL_STYLES)
 
     def get_list_name(obj):
         if type(obj) is list:
@@ -120,9 +116,10 @@ def save_context(filename, keys):
     if FLAGS.subfolder != notValid:
         FLAGS.results_folder = os.path.join(FLAGS.results_folder, FLAGS.subfolder)
 
-    experiment_name = "({file})_({data})_({time})_({default_key})_({user_key})".format(
+    experiment_name = "({file})_({data}_{method})_({time})_({default_key})_({user_key})".format(
         file=filename.replace("/", "_"),
         data=FLAGS.dataset,
+        method=FLAGS.method,
         time=time.strftime("%Y-%m-%d-%H-%M-%S"),
         default_key=default_key,
         user_key=FLAGS.key,
@@ -136,9 +133,7 @@ def save_context(filename, keys):
         logfiles.append("./Aresults/{}_log.txt".format(experiment_name))
 
     if os.path.exists(FLAGS.results_folder):
-        raise FileExistsError(
-            "{} exits. Run it after a second.".format(FLAGS.results_folder)
-        )
+        raise FileExistsError("{} exits. Run it after a second.".format(FLAGS.results_folder))
 
     MODELS_FOLDER = FLAGS.results_folder + "/models/"
     SUMMARIES_FOLDER = FLAGS.results_folder + "/summary/"
