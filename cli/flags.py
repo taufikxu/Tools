@@ -64,10 +64,14 @@ class _FlagValues(object):
         if not self.__dict__["__parsed"]:
             self._parse_flags()
         ignore = ["gpu", "results_folder", "subfolder", "old_model"]
+        mydict = namespace2Dict(self.__dict__["__flags"])
         for k in newdict:
             if k in ignore:
                 continue
-            self.__dict__["__flags"][k] = newdict[k]
+            mydict[k] = newdict[k]
+        self.__dict__["__flags"] = mydict
+        self.__dict__["__namespace"] = False
+        self.toNameSpace()
 
     def toNameSpace(self):
         if self.__dict__["__namespace"] is True:
@@ -133,6 +137,4 @@ def DEFINE_boolean(*args, default=MUST_INPUT, docstring=None, **kwargs):
         return v.lower() in ("true", "t", "1")
 
     docstring = "" if docstring is None else docstring
-    _global_parser.add_argument(
-        *args, help=docstring, default=default, type=str2bool, **kwargs
-    )
+    _global_parser.add_argument(*args, help=docstring, default=default, type=str2bool, **kwargs)

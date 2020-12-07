@@ -98,9 +98,7 @@ class Logger(object):
 
         fig, ax = plt.subplots()
         z_min, z_max = np.min(value), np.max(value)
-        c = ax.pcolormesh(
-            X, Y, value, cmap="RdBu", vmin=z_min, vmax=z_max, shading="auto"
-        )
+        c = ax.pcolormesh(X, Y, value, cmap="RdBu", vmin=z_min, vmax=z_max, shading="auto")
         ax.axis([X.min(), X.max(), Y.min(), Y.max()])
         fig.colorbar(c, ax=ax)
         plt.savefig(outfile)
