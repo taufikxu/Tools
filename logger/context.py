@@ -127,10 +127,10 @@ def save_context(filename, keys):
     FLAGS.results_folder = os.path.join(FLAGS.results_folder, experiment_name)
     logfiles.append(os.path.join(FLAGS.results_folder, "Log.txt"))
 
-    if os.path.isabs(FLAGS.results_folder):
-        experiment_name = "({})".format(project) + experiment_name
-        FLAGS.results_folder = "({})".format(project) + FLAGS.results_folder
-        logfiles.append("./Aresults/{}_log.txt".format(experiment_name))
+    # if os.path.isabs(FLAGS.results_folder):
+    #     experiment_name = "({})".format(project) + experiment_name
+    #     FLAGS.results_folder = "({})".format(project) + FLAGS.results_folder
+    #     logfiles.append("./Aresults/{}_log.txt".format(experiment_name))
 
     if os.path.exists(FLAGS.results_folder):
         raise FileExistsError("{} exits. Run it after a second.".format(FLAGS.results_folder))
