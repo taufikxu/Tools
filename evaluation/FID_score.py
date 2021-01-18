@@ -78,9 +78,7 @@ def get_activations(images, sess, batch_size=50, verbose=False):
     inception_layer = _get_inception_layer(sess)
     n_images = images.shape[0]
     if batch_size > n_images:
-        print(
-            "warning: batch size is bigger than the data size. setting batch size to data size"
-        )
+        print("warning: batch size is bigger than the data size. setting batch size to data size")
         batch_size = n_images
     n_batches = n_images // batch_size
     pred_arr = np.empty((n_images, 2048))
@@ -134,22 +132,15 @@ def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
     sigma1 = np.atleast_2d(sigma1)
     sigma2 = np.atleast_2d(sigma2)
 
-    assert (
-        mu1.shape == mu2.shape
-    ), "Training and test mean vectors have different lengths"
-    assert (
-        sigma1.shape == sigma2.shape
-    ), "Training and test covariances have different dimensions"
+    assert mu1.shape == mu2.shape, "Training and test mean vectors have different lengths"
+    assert sigma1.shape == sigma2.shape, "Training and test covariances have different dimensions"
 
     diff = mu1 - mu2
 
     # product might be almost singular
     covmean, _ = linalg.sqrtm(sigma1.dot(sigma2), disp=False)
     if not np.isfinite(covmean).all():
-        msg = (
-            "fid calculation produces singular product; adding %s to diagonal of cov estimates"
-            % eps
-        )
+        msg = "fid calculation produces singular product; adding %s to diagonal of cov estimates" % eps
         warnings.warn(msg)
         offset = np.eye(sigma1.shape[0]) * eps
         covmean = linalg.sqrtm((sigma1 + offset).dot(sigma2 + offset))
@@ -225,9 +216,7 @@ def get_activations_from_files(files, sess, batch_size=50, verbose=False):
     inception_layer = _get_inception_layer(sess)
     n_imgs = len(files)
     if batch_size > n_imgs:
-        print(
-            "warning: batch size is bigger than the data size. setting batch size to data size"
-        )
+        print("warning: batch size is bigger than the data size. setting batch size to data size")
         batch_size = n_imgs
     n_batches = n_imgs // batch_size + 1
     pred_arr = np.empty((n_imgs, 2048))
@@ -249,9 +238,7 @@ def get_activations_from_files(files, sess, batch_size=50, verbose=False):
     return pred_arr
 
 
-def calculate_activation_statistics_from_files(
-    files, sess, batch_size=50, verbose=False
-):
+def calculate_activation_statistics_from_files(files, sess, batch_size=50, verbose=False):
     """Calculation of the statistics used by the FID.
     Params:
     -- files      : list of paths to image files. Images need to have same dimensions for all files.
@@ -283,9 +270,7 @@ def calculate_activation_statistics_from_files(
 def check_or_download_inception(inception_path):
     """ Checks if the path to the inception file is valid, or downloads
         the file if it is not present. """
-    INCEPTION_URL = (
-        "http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz"
-    )
+    INCEPTION_URL = "http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz"
     if inception_path is None:
         inception_path = "/home/LargeData/tf_ckpts"
     inception_path = pathlib.Path(inception_path)
@@ -340,14 +325,9 @@ if __name__ == "__main__":
 
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        "path",
-        type=str,
-        nargs=2,
-        help="Path to the generated images or to .npz statistic files",
+        "path", type=str, nargs=2, help="Path to the generated images or to .npz statistic files",
     )
-    parser.add_argument(
-        "--gpu", default="", type=str, help="GPU to use (leave blank for CPU only)"
-    )
+    parser.add_argument("--gpu", default="", type=str, help="GPU to use (leave blank for CPU only)")
 
     args = parser.parse_args()
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu

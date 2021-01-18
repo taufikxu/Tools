@@ -14,9 +14,7 @@ import PIL
 import pickle
 
 MODEL_DIR = "/home/LargeData/tf_ckpts"
-DATA_URL = (
-    "http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz"
-)
+DATA_URL = "http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz"
 softmax = None
 
 # Call this function with list of images. Each of elements should be a
@@ -47,9 +45,7 @@ def get_inception_score(images, splits=10, bs=500):
         preds = np.concatenate(preds, 0)
         scores = []
         for i in range(splits):
-            part = preds[
-                (i * preds.shape[0] // splits) : ((i + 1) * preds.shape[0] // splits), :
-            ]
+            part = preds[(i * preds.shape[0] // splits) : ((i + 1) * preds.shape[0] // splits), :]
             kl = part * (np.log(part) - np.log(np.expand_dims(np.mean(part, 0), 0)))
             kl = np.mean(np.sum(kl, 1))
             scores.append(np.exp(kl))
@@ -66,10 +62,7 @@ def _init_inception():
     if not os.path.exists(filepath):
 
         def _progress(count, block_size, total_size):
-            sys.stdout.write(
-                "\r>> Downloading %s %.1f%%"
-                % (filename, float(count * block_size) / float(total_size) * 100.0)
-            )
+            sys.stdout.write("\r>> Downloading %s %.1f%%" % (filename, float(count * block_size) / float(total_size) * 100.0))
             sys.stdout.flush()
 
         filepath, _ = urllib.request.urlretrieve(DATA_URL, filepath, _progress)
@@ -77,17 +70,11 @@ def _init_inception():
         statinfo = os.stat(filepath)
         print("Succesfully downloaded", filename, statinfo.st_size, "bytes.")
     tarfile.open(filepath, "r:gz").extractall(MODEL_DIR)
-    with tf.gfile.FastGFile(
-        os.path.join(MODEL_DIR, "classify_image_graph_def.pb"), "rb"
-    ) as f:
+    with tf.gfile.FastGFile(os.path.join(MODEL_DIR, "classify_image_graph_def.pb"), "rb") as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
-        input_tensor = tf.placeholder(
-            tf.float32, shape=[None, None, None, 3], name="InputTensor"
-        )
-        _ = tf.import_graph_def(
-            graph_def, name="", input_map={"ExpandDims:0": input_tensor}
-        )
+        input_tensor = tf.placeholder(tf.float32, shape=[None, None, None, 3], name="InputTensor")
+        _ = tf.import_graph_def(graph_def, name="", input_map={"ExpandDims:0": input_tensor})
     # Works with an arbitrary minibatch size.
     with tf.Session() as sess:
         pool3 = sess.graph.get_tensor_by_name("pool_3:0")
